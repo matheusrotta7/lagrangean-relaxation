@@ -1,0 +1,42 @@
+[MC658-2019s1] TP5 - grupo05
+
+projeto em C++
+make
+./dcmstp-solver <instancia> <tempo> <método>
+<instancia> nome do arquivo
+<tempo> em segundos
+<método> = 1 .. m
+
+antes das 16 horas de quarta-feira:
+
+parametros finais
+descricao da vizinhança e imagens
+descricao do heuristical primal
+graficos
+primais e duais a tempo fixo
+ambiente de execucao
+
+comentar:
+metaheuristica nao calcula dual
+descrever o anelamento, observar que temperatura cai a zero, para ter mais temperatura, a otimização demora muito mais tempo. para mesma temperatura, esssencialmente nao há ganhos com o aumento do tempo de execucão
+parametros dependem da escala do problema (kT e penalidade da restrição são proporcionais ao custo da heurística inicial)
+lagrangian
+vizinho aleatorio O(n)
+
+também:
+
+para cada tamanho de instancia (100,200,...) calcular primal medio e comparar (1 se primal médio é menor, 2 se primal médio é maior):
+     p100 p200 .... p2000 rank_médio
+lang 2    2         1     1.9
+meta 1    1         2     1.4
+para cada tamanho, temos um ranking, logo temos um ranking médio. o método melhor é aquele com menor ranking medio.
+
+dividir em seções (?)
+
+enunciado tp4
+4.3
+(i) (dificilmente vamos achar ótimos)
+(ii) olhe acima
+(iii)
+Anelamente simulado eventualmente so busca o minima local, porque saltos ocorrerão com probabilidade zero a. subir a temperatura exigirá que o código rode por mais tempo
+Primal langrangiano pode nao ser melhorado significativamente com o metodo escolhido
