@@ -1,0 +1,13 @@
+vizinho:
+tira aresta da arvore e reune grafo por uma aresta que incide em uma das extremidades da aresta
+aleatorio -> O(n)
+buscar por arestas menores -> potencialmente O(n^2)
+
+anelamento:
+parâmetros no código (penalidade h, alpha, kT)
+comeca com caminho
+
+lagrangeano:
+iteracao O(n^2)
+prim O(n^2)
+heuristica, usa prim e desloca arestas de vertices que violam restrições de grau
