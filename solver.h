@@ -1,7 +1,6 @@
 #ifndef SOLVER_H
 #define SOLVER_H
 
-#include <iostream>
 #include <ctime>
 #include "graph.h"
 
@@ -13,7 +12,6 @@ struct sol_t {
 typedef sol_t (*solver_t)(const graph_t&, int *degm, clock_t);
 
 sol_t lang(const graph_t&, int*, clock_t);
-
 sol_t anneal(const graph_t&, int*, clock_t);
 
 inline sol_t trivial(const graph_t& g, int *degm, clock_t max) {

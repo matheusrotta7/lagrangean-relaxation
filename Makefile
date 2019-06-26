@@ -1,7 +1,7 @@
 EXEC    = dcmstp-solver
 CXX      = g++
 
-CXXFLAGS  = -O2 -std=c++11 -Wall -Wextra -Wpedantic
+CXXFLAGS  = -O2 -g -std=c++11 -Wall -Wextra -Wpedantic
 
 SRC     = $(wildcard ./*$.cpp)
 OBJ     = $(SRC:.cpp=.o)

@@ -15,10 +15,45 @@ int local_init(int n) {
     _lrank = (int*)malloc(sizeof(int)*n);
     if(!_lrank) {
         free(_lpar);
-        return 0;   
+        return 0;
     }
 
     return 1;
+}
+
+void local_finish() {
+    if (_lpar) free(_lpar);
+    if (_lrank) free(_lrank);
+}
+
+
+#include <iostream>
+void fixdeg(tree_t& t, int *degm) {
+    int n = t.n;
+    for (int i = 0; i < n; i++) {
+        while (t.deg[i] > degm[i]) {
+            int j, k;
+            for (j = 0; j < n; j++)
+                if (t.par[j] == i) break;
+
+            t.deg[i]--;
+            t.par[j] = -1;
+
+            _lcomps(t);
+
+            for (k = 0; k < n; k++)
+                if (_lpar[k] != _lpar[j] && t.deg[k] < degm[k])
+                    break;
+            if (k == n) {
+                t.deg[i]++;
+                t.par[j] = i;
+                return; /* failure */           
+            }
+
+            t.par[j] = k;
+            t.deg[k]++;
+        }
+    }
 }
 
 void _lcomps(const tree_t& t) {
@@ -45,6 +80,8 @@ void _lcomps(const tree_t& t) {
             vrt = _lpar[vrt];
         }
 
+        if (urt == vrt) continue;
+
         if (_lrank[urt] < _lrank[vrt]) {
             urt0 = urt;
             urt = vrt;
@@ -65,22 +102,31 @@ void random_from(tree_t& tn, const tree_t& t) {
         tn.par[i] = t.par[i];
         tn.deg[i] = t.deg[i]; 
     }
-    
-    int x = 1 + rand() % (n-1), y; /* select non-root */
 
-    tn.deg[t.par[x]]--;
-    tn.par[x] = -1;
+    int x, y;
+    while (1) {
+        x = 1 + rand() % (n-1); /* select x non-root */
+        y = -1;
 
-    _lcomps(tn);
+        tn.deg[t.par[x]]--;
+        tn.par[x] = -1;
 
-    do {
-        y = rand() % n;
-    } while (y == t.par[x] || _lpar[x] == _lpar[y]);
+        _lcomps(tn);
 
-    tn.par[x] = y;
-    tn.deg[y]++;
+        do {
+            y++;
+            if (y == n) break;
+        } while (y == t.par[x] || _lpar[x] == _lpar[y]);
+        
+        if (y < n) {
+            tn.par[x] = y;
+            tn.deg[y]++;
+            break;
+       }
 
-    return;
+       tn.deg[t.par[x]]++;
+       tn.par[x] = t.par[x];
+    }
 }
 
 void random_from_degm(tree_t& tn, const tree_t& t, int *degm) {
@@ -103,7 +149,7 @@ void random_from_degm(tree_t& tn, const tree_t& t, int *degm) {
 
     do { 
         y = rand() % n;
-    } while (y == t.par[x] || _lpar[x] == _lpar[y]);
+    } while (y == t.par[x] || _lpar[x] == _lpar[y] || tn.deg[y] == degm[y]);
 
     tn.par[x] = y;
     tn.deg[y]++;

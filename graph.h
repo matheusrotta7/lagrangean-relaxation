@@ -5,14 +5,17 @@
 
 #define GET_W(g, i, j) ((g).wm)[(j) + (i)*((g).n)]
 
+struct graph_t;
+
 struct edge {
     int u, v;
+    graph_t *g;
 };
 
 struct graph_t {
     int n; /* number of vertices */
     int m; /* number of edges */
-    int *wm; /* 2d matrix as array in row-order */
+    double *wm; /* 2d matrix as array in row-order */
     edge *elist; /* possible space for edge list */
     int alloc;
 
@@ -23,7 +26,7 @@ struct graph_t {
         this->m = m;
         elist = NULL;
         alloc = 0;
-        wm = (int*)malloc(sizeof(int)*n*n);
+        wm = (double*)malloc(sizeof(double)*n*n);
         if (!wm) return;
         if (!mk_elist) {
             alloc = 1;
@@ -42,7 +45,7 @@ struct graph_t {
         wm = NULL;
         if (!g) return;
 
-        wm = (int*)malloc(sizeof(int)*n*n);
+        wm = (double*)malloc(sizeof(double)*n*n);
         if (!wm) return;
 
         for (int i = 0; i < n*n; i++)
@@ -81,7 +84,7 @@ struct graph_t {
         elist = NULL;
         if (!g) return *this;
 
-        wm = (int*)malloc(sizeof(int)*n*n);
+        wm = (double*)malloc(sizeof(double)*n*n);
         if(!wm) return *this;
 
         for (int i = 0; i < n*n; i++)
@@ -125,6 +128,10 @@ struct graph_t {
     }
 };
 
+inline bool operator< (const edge& ths, const edge& that) {
+    return GET_W(*(ths.g), ths.u, ths.v) < GET_W(*(ths.g), that.u, that.v);
+}
+
 struct tree_t {
     int n; /* number of vertices (0 ... n-1) */
     int *par; /* parent node, -1 for root */
@@ -133,7 +140,7 @@ struct tree_t {
 
     tree_t() : tree_t(0) {}
 
-    tree_t(int n) {
+    explicit tree_t(int n) {
         alloc = 0;
         this->n = n;
         par = (int*)malloc(sizeof(int)*n);
@@ -220,25 +227,23 @@ struct tree_t {
         if (deg) free(deg);
     }
 
-    int weight(const graph_t& g) const {
-        int s = 0;
-        for (int i = 1; i < n; i++) {
+    double weight(const graph_t& g) const {
+        double s = 0;
+        for (int i = 0; i < n; i++) {
+            if (par[i] == -1) continue;
             s += GET_W(g, i, par[i]);
         }
         return s;
     }
 
-    int weight_x(const graph_t& g, int *degm, int h) const {
-        int s = 0, hi;
-        if (deg[0] > degm[0]) {
-            hi = deg[0] - degm[0];
-            s += h*hi*hi;
-        }
-        for (int i = 1; i < n; i++) {
+    double weight_x(const graph_t& g, int *degm, double h) const {
+        double s = 0, hi;
+        for (int i = 0; i < n; i++) {
             if (deg[i] > degm[i]) {
                 hi = deg[i] - degm[i];
                 s += h*hi*hi;
             }
+            if (par[i] == -1) continue;
             s += GET_W(g, i, par[i]);
         }
         return s;

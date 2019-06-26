@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    int soln = argv[3][0]-49;
+    int soln = argv[3][0]-'1';
     if (argv[3][0] == 'm') soln = 2;
 
     solver_t solv = solvers[soln];
