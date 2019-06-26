@@ -1,5 +1,6 @@
 #include "local.h"
 #include <cstdlib>
+#include <ctime>
 
 int *_lpar = NULL;
 int *_lrank = NULL;
@@ -8,7 +9,7 @@ int local_init(int n) {
     if (_lpar) free(_lpar);
     if (_lrank) free(_lrank);
     
-    srand(170013);
+    srand(time(NULL));
 
     _lpar = (int*)malloc(sizeof(int)*n);
     if (!_lpar) return 0;

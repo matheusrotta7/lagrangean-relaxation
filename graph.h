@@ -16,24 +16,17 @@ struct graph_t {
     int n; /* number of vertices */
     int m; /* number of edges */
     double *wm; /* 2d matrix as array in row-order */
-    edge *elist; /* possible space for edge list */
     int alloc;
 
-    graph_t() : graph_t(0, 0, 0) {}
+    graph_t() : graph_t(0, 0) {}
 
-    graph_t(int n, int m, int mk_elist) {
+    graph_t(int n, int m) {
         this->n = n;
         this->m = m;
-        elist = NULL;
         alloc = 0;
         wm = (double*)malloc(sizeof(double)*n*n);
         if (!wm) return;
-        if (!mk_elist) {
-            alloc = 1;
-            return;
-        }
-        elist = (edge*)malloc(sizeof(edge)*m); 
-        if (!elist) return;
+        
         alloc = 1;
     }
 
@@ -41,8 +34,8 @@ struct graph_t {
         n = g.n;
         m = g.m;
         alloc = 0;
-        elist = NULL;
         wm = NULL;
+
         if (!g) return;
 
         wm = (double*)malloc(sizeof(double)*n*n);
@@ -51,37 +44,16 @@ struct graph_t {
         for (int i = 0; i < n*n; i++)
             wm[i] = g.wm[i];
 
-        if (!g.elist) {
-            alloc = 1;
-            return;
-        }
-        elist = (edge*)malloc(sizeof(edge)*m);
-        if (!elist) return;
-
-        for (int i = 0; i < m; i++)
-            elist[i] = g.elist[i];
-    }
-
-    graph_t(graph_t&& g) {
-        n = g.n;
-        m = g.m;
-        wm = g.wm;
-        elist = g.elist;
-        alloc = g.alloc;
-        g.alloc = 0;
-        g.wm = NULL;
-        g.elist = NULL;
+        alloc = 1;
     }
 
     graph_t& operator=(const graph_t& g) {
-        if (wm) free(wm);
-        if (elist) free(elist);
+        if (wm) { free(wm); wm = NULL; }
 
         n = g.n;
         m = g.m;
         alloc = 0;
         wm = NULL;
-        elist = NULL;
         if (!g) return *this;
 
         wm = (double*)malloc(sizeof(double)*n*n);
@@ -90,31 +62,6 @@ struct graph_t {
         for (int i = 0; i < n*n; i++)
             wm[i] = g.wm[i];
         
-        if(!g.elist) {
-            alloc = 1;
-            return *this;
-        }
-
-        elist = (edge*)malloc(sizeof(edge)*m);
-        if (!elist) return *this;
-        
-        for (int i = 0; i < m; i++)
-            elist[i] = g.elist[i];
-        return *this;
-    }
-
-    graph_t& operator=(graph_t&& g) {
-        if (wm) free(wm);
-        if (elist) free(elist);
-
-        n = g.n;
-        m = g.m;
-        wm = g.wm;
-        elist = g.elist;
-        alloc = g.alloc;
-        g.alloc = 0;
-        g.wm = NULL;
-        g.elist = NULL;
         return *this;
     }
 
@@ -123,8 +70,8 @@ struct graph_t {
     bool operator !() const { return !alloc; }
 
     ~graph_t() {
-        if (wm) free(wm);
-        if (elist) free(elist);
+        alloc = 0;
+        if (wm) { free(wm); wm = NULL; }
     }
 };
 
@@ -168,27 +115,16 @@ struct tree_t {
         alloc = 1;
     }
 
-    tree_t(tree_t&& t) {
-        n = t.n;
-        alloc = t.alloc;
-        t.alloc = 0;
-        par = t.par;
-        deg = t.deg;
-        t.par = NULL;
-        t.deg = NULL;
-    }
-
     tree_t& operator=(const tree_t& t) {
-        
         if (t.n != n || !par || !deg) { 
-            if (par) free(par);
-            if (deg) free(deg);
+            if (par) { free(par); par = NULL; }
+            if (deg) { free(deg); deg = NULL; }
         
             n = t.n;
             alloc = 0;
             if (!t) return *this;
             par = (int*)malloc(sizeof(int)*n);
-            deg = NULL; 
+
             if (!par) return *this;
             deg = (int*)malloc(sizeof(int)*n);
             if (!deg) return *this;
@@ -203,28 +139,14 @@ struct tree_t {
         return *this; 
     }
 
-    tree_t& operator=(tree_t&& t) {
-        if (par) free(par);
-        if (deg) free(deg);
-
-        n = t.n;
-        alloc = t.alloc;
-        t.alloc = 0;
-        par = t.par;
-        deg = t.deg;
-        t.par = NULL;
-        t.deg = NULL;
-
-        return *this;
-    }
-
     operator bool() const { return alloc; }
 
     bool operator !() const { return !alloc; }
 
     ~tree_t() {
-        if (par) free(par);
-        if (deg) free(deg);
+        alloc = 0;
+        if (par) { free(par); par = NULL; }
+        if (deg) { free(deg); deg = NULL; }
     }
 
     double weight(const graph_t& g) const {

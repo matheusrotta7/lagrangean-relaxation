@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
 
     file >> n >> m;
 
-    graph_t g(n, m, 0);
+    graph_t g(n, m);
     if (!g) return 0;
 
     int *degm = (int*)malloc(sizeof(int)*n);
@@ -57,6 +57,7 @@ int main(int argc, char **argv) {
     }
 
     sol_t sol = solv(g, degm, maxclock);
+
     std::cout << std::setprecision(4) << std::fixed;
     std::cout << argv[1] << ',' << sol.dual << ',' << 
         sol.prim << std::endl;

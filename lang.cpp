@@ -1,8 +1,7 @@
 #include "solver.h"
 #include "local.h"
-#include <iostream>
 
-static int *_pkey;
+static double *_pkey;
 static int *_pst;
 
 void prim(tree_t& t, const graph_t& g) {
@@ -16,7 +15,7 @@ void prim(tree_t& t, const graph_t& g) {
         }
     
     for (int i = 0; i < n; i++) {
-        _pkey[i] = maxw + 1;
+        _pkey[i] = maxw+1;
         _pst[i] = 0;
         t.deg[i] = 0;
         t.par[i] = -1;
@@ -24,7 +23,7 @@ void prim(tree_t& t, const graph_t& g) {
     
     for (int i = 0; i < n; i++) {
         int v = -1;
-        int k = maxw + 2, ku;
+        double k = maxw + 2, ku;
         for (int u = 0; u < n; u++) {
             ku = _pkey[u];
             if (!_pst[u] && ku < k) {
@@ -55,7 +54,7 @@ void prim(tree_t& t, const graph_t& g) {
 sol_t lang(const graph_t& g, int *degm, clock_t max) {
     int n = g.n;
 
-    _pkey = (int*)malloc(sizeof(int)*n);
+    _pkey = (double*)malloc(sizeof(double)*n);
     _pst = (int*)malloc(sizeof(int)*n);
     local_init(n);
 
@@ -105,9 +104,7 @@ sol_t lang(const graph_t& g, int *degm, clock_t max) {
         }
 
         if (s.prim - s.dual < 1) {
-            std::cout << s.dual << ' ' << s.prim << '\n';
             s.dual = s.prim;
-            std::cout << "small gap\n";
             break;        
         }
 
@@ -125,12 +122,8 @@ sol_t lang(const graph_t& g, int *degm, clock_t max) {
         if (s.dual < dual) s.dual = dual;
 
         if (subg2sum == 0) {
-            /* optimal */
-            std::cout << "optimal case\n";
             double stw = st.weight(g);
             s.dual = stw;
-            s.t = st;
-            s.prim = stw;
             break;        
         }
                     
@@ -147,17 +140,7 @@ sol_t lang(const graph_t& g, int *degm, clock_t max) {
         step = alpha*(1.03*s.prim-dual)/subg2sum;
     }
 
-    for (int i = 0; i < n; i++) {
-        int degi = (s.t.par[i] == -1) ? 0 : 1;
-        for (int j = 0; j < n; j++) {
-            if (i == j) continue;
-            if (s.t.par[j] == i) degi += 1;
-        }
-        if (degi > degm[i]) {
-            std::cout << "deg" << i << ' ' << degi << ' ' << degm[i] << '\n';        
-        }
-    }
-
+    local_finish();
     free(_pkey);
     free(_pst);
     free(u);

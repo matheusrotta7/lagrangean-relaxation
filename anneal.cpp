@@ -4,28 +4,15 @@
 #include <cstdlib>
 #include <iostream>
 
-int penalties(const tree_t& t, int *degm) {
-    int p = 0, pi;
-    int n = t.n;
-    for (int i = 0; i < n; i++) {
-        if (t.deg[i] > degm[i]) {
-            pi = t.deg[i] - degm[i];
-            p += pi * pi;
-        }
-    }
-
-    return p;
-}
-
 sol_t anneal(const graph_t& g, int *degm, clock_t maxclock) {
     int n = g.n;
     tree_t s0 = make_path(n);
     double w_s0 = s0.weight(g), w_sn, wdiff;
 
     /* parameters */
-    double h = 2*w_s0/n;
+    double h = w_s0/n;
     double alpha = 0.99999;
-    double kt = h;
+    double kt = 40*h;
 
     tree_t s_opt(s0);
     double w_opt = w_s0;
@@ -39,7 +26,7 @@ sol_t anneal(const graph_t& g, int *degm, clock_t maxclock) {
     tree_t sn(n);
 
     while (clock() <= maxclock) {
-        random_from(sn, s0);
+        improve_from(sn, s0, g);
         w_sn = sn.weight_x(g, degm, h);
         wdiff = w_sn - w_s0;
 
@@ -57,7 +44,9 @@ sol_t anneal(const graph_t& g, int *degm, clock_t maxclock) {
                 s0 = sn;
             }
         }
-
+        if (kt > 1 && kt*alpha <= 1) {
+            std::cout << "freeze\n";        
+        }
         if (kt > 1) kt *= alpha;
     }
 
